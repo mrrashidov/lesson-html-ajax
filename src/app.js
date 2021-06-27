@@ -3,13 +3,7 @@ async function useFetch(url) {
     const button = document.getElementById('load-data')
     button.classList.toggle('button--loading')
 
-    return await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8'
-        },
-        credentials: 'include'
-    })
+    return await fetch(url)
         .then(response => response.json())
         .then(async json => {
             button.classList.toggle('button--loading')
@@ -19,35 +13,36 @@ async function useFetch(url) {
 }
 
 async function loadData() {
-    const data = await useFetch('https://jsonplaceholder.typicode.com/todos')
-    return await parseView(data)
+    const data = await useFetch('https://jsonplaceholder.typicode.com/posts')
+    return parseView(data)
 }
 
 function parseView(data) {
 
-    let tr = '<tr><td>ID</td> <td>Title</td> <td>Status</td> <td>Actions</td></tr>'
+    let tr = '<tr><td>ID</td> <td>Title</td>  <td>Actions</td></tr>'
 
-    if (data.length > 0) {
-        data.forEach(item => {
-            tr += '<tr>'
-            tr += `<td> ${item.id}</td>`
-            tr += `<td>${item.title}</td>`
-            tr += `<td>${item.completed}</td>`
-            tr += `<td> <button type="button" value="${item.id}" onclick="editable(this)" class="button__edit">Edit</button> </td>`
-            tr += '</tr>'
-        })
-    } else {
+    data.forEach(item => {
         tr += '<tr>'
-        tr += `<td> No content</td>`
+        tr += `<td> ${item.id}</td>`
+        tr += `<td>${item.title}</td>`
+        tr += `<td> <button type="button" value="${item.id}" onclick="editable(this)" class="button__edit">Edit</button> 
+            | <button type="button" value="${item.userId}" onclick="getUser(this)" class="button__edit">Get User</button> </td>`
         tr += '</tr>'
-    }
+    })
+
 
     document.getElementById("fetch_data").innerHTML = tr;
 }
 
 async function editable(e) {
-    const data = await useFetch(`https://jsonplaceholder.typicode.com/todos/${e.value}`)
-    await useModal(data)
+    const data = await useFetch(`https://jsonplaceholder.typicode.com/posts/${e.value}`)
+    useModal(data)
+}
+
+async function getUser(e) {
+    const data = await useFetch(`https://jsonplaceholder.typicode.com/users/${e.value}`)
+    console.log('user-info 🚀', data)
+    alert('Yee hoo 😍🚀 please open console')
 }
 
 function useModal(data) {
@@ -57,7 +52,6 @@ function useModal(data) {
     modal.style.display = "block";
 
     modal.onclick = function () {
-        console.log('bosildi')
         modal.style.display = "none";
     }
     window.onclick = function (event) {
@@ -74,7 +68,9 @@ function useModal(data) {
             <h2>Editable Item ID: ${data.id} </h2>
         </div>
         <div class="modal-body">
-            <p>${data.title}</p>
+        <p>${data.title}</p>
+        <br>
+        <p>${data.body}</p>
         </div>
         <div class="modal-footer">
             <h3>User ID: ${data.userId}</h3>
